@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chiku Trading Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #121722;
+            color: #d1d4dc;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #1e222d;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2a2e39;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2962ff;
+        }
+        .status {
+            font-size: 14px;
+            color: #26a69a;
+            background: rgba(38, 166, 154, 0.1);
+            padding: 5px 12px;
+            border-radius: 15px;
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 15px;
+            padding: 15px;
+            flex-grow: 1;
+        }
+        .card {
+            background-color: #1e222d;
+            border-radius: 8px;
+            border: 1px solid #2a2e39;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #ffffff;
+            border-bottom: 1px solid #2a2e39;
+            padding-bottom: 8px;
+        }
+        .chart-box {
+            height: 500px;
+            width: 100%;
+        }
+        .trade-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn-buy { background-color: #26a69a; color: white; }
+        .btn-sell { background-color: #ef5350; color: white; }
+        .btn-buy:hover { background-color: #229489; }
+        .btn-sell:hover { background-color: #d64846; }
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #131722;
+            border: 1px solid #2a2e39;
+            color: white;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #2a2e39;
+        }
+        th { color: #787b86; }
+        .buy-text { color: #26a69a; font-weight: bold; }
+        .sell-text { color: #ef5350; font-weight: bold; }
+        @media (max-width: 900px) {
+            .main-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">⚡ Chiku Bot Dashboard</div>
+        <div class="status">● System Live</div>
+    </header>
+
+    <div class="main-container">
+        <!-- Left Side: Chart & Signals -->
+        <div>
+            <!-- TradingView Chart Widget -->
+            <div class="card">
+                <div class="card-title">XAU/USD Live Chart</div>
+                <div class="chart-box" id="tradingview_chart"></div>
+            </div>
+
+            <!-- Signal Table -->
+            <div class="card">
+                <div class="card-title">Recent Signals</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Action</th>
+                            <th>Price</th>
+                            <th>SL</th>
+                            <th>TP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="signal-rows">
+                        <tr>
+                            <td>10:45 AM</td>
+                            <td class="buy-text">BUY</td>
+                            <td>4145.20</td>
+                            <td>4140.00</td>
+                            <td>4155.00</td>
+                        </tr>
+                        <tr>
+                            <td>08:15 AM</td>
+                            <td class="sell-text">SELL</td>
+                            <td>4158.50</td>
+                            <td>4163.00</td>
+                            <td>4148.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Right Side: Quick Controls & News -->
+        <div>
+            <!-- Trade Panel (Semi-Auto Ready) -->
+            <div class="card">
+                <div class="card-title">1-Click Trade Panel</div>
+                <label style="font-size: 12px; color: #787b86;">Lot Size:</label>
+                <input type="number" value="0.01" step="0.01">
+                <button class="trade-btn btn-buy">BUY XAU/USD</button>
+                <button class="trade-btn btn-sell">SELL XAU/USD</button>
+            </div>
+
+            <!-- Economic Calendar Widget -->
+            <div class="card">
+                <div class="card-title">Economic Calendar</div>
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
+                    {
+                        "colorTheme": "dark",
+                        "isTransparent": true,
+                        "width": "100%",
+                        "height": "300",
+                        "locale": "en",
+                        "importanceFilter": "0,1"
+                    }
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TradingView Chart Script -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script type="text/javascript">
+        new TradingView.widget({
+            "autosize": true,
+            "symbol": "OANDA:XAUUSD",
+            "interval": "5",
+            "timezone": "Etc/UTC",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_side_toolbar": false,
+            "container_id": "tradingview_chart"
+        });
+    </script>
+</body>
+</html>
